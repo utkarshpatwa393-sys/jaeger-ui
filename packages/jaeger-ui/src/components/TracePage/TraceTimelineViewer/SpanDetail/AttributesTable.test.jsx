@@ -349,4 +349,20 @@ describe('<AttributesTable> - JSON-shaped values render richly regardless of key
     expect(valueRow).toHaveTextContent('user');
     expect(valueRow).toHaveTextContent('Hello, probe message');
   });
+
+  it('renders a kvlist (Object.create(null)) attribute without crashing', () => {
+    const nested = Object.create(null);
+    nested.child = 'value';
+    const data = [{ key: 'nested', value: nested }];
+    render(<AttributesTable data={makeAttributes(data)} />);
+
+    const keyCell = screen.getByText('nested');
+    const keyRow = keyCell.closest('tr');
+    expect(keyRow).toHaveClass('KeyValueTable--row-jsonKey');
+
+    const valueRow = keyRow.nextElementSibling;
+    expect(valueRow).toHaveClass('KeyValueTable--row-jsonValue');
+    expect(valueRow).toHaveTextContent('child');
+    expect(valueRow).toHaveTextContent('value');
+  });
 });

@@ -29,10 +29,24 @@ function formatSummaryValue(value: AttributeValue) {
     // large array is never stringified.
     let textLength = 0;
     for (const item of value) {
-      textLength += String(item).length + 1;
+      const itemStr =
+        typeof item === 'object' && item !== null && !(item instanceof Uint8Array)
+          ? formatSummaryValue(item as AttributeValue)
+          : String(item);
+      textLength += itemStr.length + 1;
       if (textLength > SUMMARY_VALUE_MAX_CHARS) return `${value.length.toLocaleString()} items`;
     }
-    return String(value);
+    return value
+      .map(item =>
+        typeof item === 'object' && item !== null && !(item instanceof Uint8Array)
+          ? formatSummaryValue(item as AttributeValue)
+          : String(item)
+      )
+      .join(',');
+  }
+  if (typeof value === 'object' && value !== null) {
+    const count = Object.keys(value).length;
+    return `${count.toLocaleString()} ${count === 1 ? 'entry' : 'entries'}`;
   }
   return String(value);
 }

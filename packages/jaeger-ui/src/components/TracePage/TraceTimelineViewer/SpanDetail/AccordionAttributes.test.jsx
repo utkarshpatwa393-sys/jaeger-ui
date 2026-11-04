@@ -76,6 +76,31 @@ describe('<AttributesSummary />', () => {
     expect(screen.getByText('300 items')).toBeInTheDocument();
     expect(screen.getByText('42')).toBeInTheDocument();
   });
+
+  it('renders a kvlist attribute in the summary', () => {
+    // What parser.ts builds for {"kvlistValue": {"values": [{"key": "child", ...}]}}
+    const nested = Object.create(null);
+    nested.child = ['value'];
+    const data = makeAttributes([
+      { key: 'nested', value: nested },
+      { key: 'empty', value: Object.create(null) },
+      { key: 'multi', value: { a: 1, b: 2 } },
+    ]);
+    render(<AttributesSummary data={data} />);
+
+    expect(screen.getByText('1 entry')).toBeInTheDocument();
+    expect(screen.getByText('0 entries')).toBeInTheDocument();
+    expect(screen.getByText('2 entries')).toBeInTheDocument();
+  });
+
+  it('handles arrays containing kvlist objects', () => {
+    const nested = Object.create(null);
+    nested.child = 'value';
+    const data = makeAttributes([{ key: 'arrayWithMap', value: [nested, 'scalar'] }]);
+    render(<AttributesSummary data={data} />);
+
+    expect(screen.getByText('1 entry,scalar')).toBeInTheDocument();
+  });
 });
 
 describe('<AccordionAttributes />', () => {
